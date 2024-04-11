@@ -1,16 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri May 19 17:18:32 2023
-@author: VV221713
 
-Virginie.van.Wassenhove@gmail.com
-=================
-group level 
-
-=================
-March 30th 2024: Simplified for VST project Camille, Gautier
-
-"""
 import pandas as pd
 import numpy as np
 from scipy import stats  
