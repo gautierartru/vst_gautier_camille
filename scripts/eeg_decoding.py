@@ -51,7 +51,7 @@ def get_eeg_epochs_and_labels_for_binary_decoding(conditions_class_1, conditions
 
 # Return decoding scores along time points for classification problems.
 # Supports following decoders: logistic regression, SVC
-def compute_decoding_scores(eeg_data, labels, decoder="logistic", cv=4, ncores=8, verbose=None):
+def compute_decoding_scores(eeg_data, labels, decoder="logistic", cv=4, ncores=8, verbose=None, scoring_multilabel = "accuracy"):
     if decoder=="logistic":
         
         clf = make_pipeline(StandardScaler(),LogisticRegression(solver="liblinear"))
@@ -59,9 +59,15 @@ def compute_decoding_scores(eeg_data, labels, decoder="logistic", cv=4, ncores=8
     elif decoder=="svc":
         
         clf = make_pipeline(StandardScaler(), SVC(kernel="linear"))
-    
+
+    # Choose the scoring metric based on the number of classes
+    if len(np.unique(labels)) == 2:
+        scoring="roc_auc"
+    else:
+        scoring=scoring_multilabel
+
     # Slide the estimator on all time frames
-    time_decod = mne.decoding.SlidingEstimator(clf, n_jobs=ncores, scoring="roc_auc", verbose=verbose)
+    time_decod = mne.decoding.SlidingEstimator(clf, n_jobs=ncores, scoring=scoring, verbose=verbose)
 
     scores = mne.decoding.cross_val_multiscore(time_decod, eeg_data, labels, cv=cv, n_jobs=ncores, verbose=verbose)
 
@@ -69,7 +75,7 @@ def compute_decoding_scores(eeg_data, labels, decoder="logistic", cv=4, ncores=8
 
 
 # Plot decoding results
-def plot_decoding_scores(decoding_scores, epochs, plot_title, end_stim=0.2, plotting_theme="ticks"):
+def plot_decoding_scores(decoding_scores, epochs, plot_title, plotting_theme="ticks"):
     results_df = pd.DataFrame(decoding_scores.transpose())
     results_df["time"] = epochs.times
     results_df = pd.melt(results_df, id_vars="time", var_name="fold", value_name="score")
@@ -85,8 +91,8 @@ def plot_decoding_scores(decoding_scores, epochs, plot_title, end_stim=0.2, plot
     # plot the stimulus onset
     ax.axvline(x=0, color="k", ls="-")
     
-    # Plot the stimulus duration (in visual blocks)
-    ax.axvspan(0, end_stim, alpha=0.1, color="black")
+    # # Plot the stimulus duration (in visual blocks)
+    # ax.axvspan(0, end_stim, alpha=0.1, color="black")
     
     # plot the average decoding accuracy (over folds) with 95% confidence interval
     sns.lineplot(data=results_df, x="time", y="score", ax=ax, lw=2, estimator="mean", label="Average accuracy")
@@ -106,3 +112,5 @@ def plot_decoding_scores(decoding_scores, epochs, plot_title, end_stim=0.2, plot
     
     # adding a legend
     plt.legend(loc="upper right")
+
+    return fig, ax

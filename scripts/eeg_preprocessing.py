@@ -39,6 +39,11 @@ def import_data(subject):
 
     raw.annotations.rename(config.mapped_annotations)
 
+    if subject[-1] == "Y":
+        inv_annotations = {v: v[:-1] + "S" if v[-1] == "L" else v[:-1] + "L" if v[-1] == "S" else v for k, v in config.mapped_annotations.items()}
+        print(inv_annotations)
+        raw.annotations.rename(inv_annotations)
+
     # define the montage for processing
     montage = mne.channels.read_custom_montage(f'{config.work_dir}/VST_Data/eeg data/MontageAntneuro2.bvef')
     raw.set_montage(montage, on_missing="warn", verbose=False)
@@ -114,7 +119,6 @@ def get_preprocessed_raw(subject, bad_channels_exclusion, ICA_exclusion):
 def solve_annotations_mismatch(blocks, subject):
     # The participant VST_02_X confused LHS and LHL in the first block
     if subject == "VST_02_X":
-        inv_mapped_annotations = {v: k for k, v in config.mapped_annotations.items()}
         blocks[0].annotations.rename({
             "start_trial_LHL":"start_trial_LHS", 
             "go_signal_LHL":"go_signal_LHS",
@@ -128,10 +132,11 @@ def solve_annotations_mismatch(blocks, subject):
 
 
 
+
 #########
 # Returns a list of the "good" blocks of the experiment (there should be 8 for each subject): each block is a Raw object
 #########
-def get_good_raw_blocks(raw, threshold = 100):
+def get_good_raw_blocks(raw, subject, threshold = 100):
     ## retrieving events 
     events, revt_id = mne.events_from_annotations(raw, config.evts_id, verbose=False)
 
@@ -152,6 +157,11 @@ def get_good_raw_blocks(raw, threshold = 100):
             good_index += 1
     
     print("[DONE] Extracting good blocks")
+
+    solve_annotations_mismatch(good_blocks, subject)
+
+    print("[DONE] Solving annotations mismatch")
+
     return good_blocks
 
 
@@ -235,21 +245,22 @@ def get_start_prod_epochs(block, block_number, subject, picks, baseline_duration
 
     # Delete bad start_prod and go_signal events 
     # Check whether there are bad events for this block
-    if block_number in config.bad_go_signal_start_prod_events[subject]:
-        start_prod_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "start_prod" in ann['description'] ]
-        start_prod_indices_to_delete = [start_prod_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["start_prod"]]
-        if start_prod_indices_to_delete != []:
-            block_copy.annotations.delete(start_prod_indices_to_delete)
+    if subject in config.bad_go_signal_start_prod_events.keys():
+        if block_number in config.bad_go_signal_start_prod_events[subject]:
+            start_prod_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "start_prod" in ann['description'] ]
+            start_prod_indices_to_delete = [start_prod_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["start_prod"]]
+            if start_prod_indices_to_delete != []:
+                block_copy.annotations.delete(start_prod_indices_to_delete)
 
-        end_prod_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "end_prod" in ann['description'] ]
-        end_prod_indices_to_delete = [start_prod_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["end_prod"]]
-        if end_prod_indices_to_delete != []:
-            block_copy.annotations.delete(end_prod_indices_to_delete)
+            end_prod_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "end_prod" in ann['description'] ]
+            end_prod_indices_to_delete = [start_prod_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["end_prod"]]
+            if end_prod_indices_to_delete != []:
+                block_copy.annotations.delete(end_prod_indices_to_delete)
 
-        go_signal_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "go_signal" in ann['description'] ]
-        go_signal_indices_to_delete = [go_signal_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["go_signal"]]
-        if go_signal_indices_to_delete != []:
-            block_copy.annotations.delete(go_signal_indices_to_delete)
+            go_signal_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "go_signal" in ann['description'] ]
+            go_signal_indices_to_delete = [go_signal_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["go_signal"]]
+            if go_signal_indices_to_delete != []:
+                block_copy.annotations.delete(go_signal_indices_to_delete)
 
     # Retrieve events and events dict for start _prod, end_prod and go_signal
     start_prod_events_dict = {k:v for k,v in config.evts_id.items() if "start_prod" in k}
@@ -313,21 +324,22 @@ def get_go_signal_epochs(block, block_number, subject, picks, baseline_duration=
     block_copy.pick(picks=picks)
 
     # Delete bad start_prod and go_signal events 
-    if block_number in config.bad_go_signal_start_prod_events[subject]:
-        start_prod_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "start_prod" in ann['description'] ]
-        start_prod_indices_to_delete = [start_prod_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["start_prod"]]
-        if start_prod_indices_to_delete != []:
-            block_copy.annotations.delete(start_prod_indices_to_delete)
+    if subject in config.bad_go_signal_start_prod_events.keys():
+        if block_number in config.bad_go_signal_start_prod_events[subject]:
+            start_prod_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "start_prod" in ann['description'] ]
+            start_prod_indices_to_delete = [start_prod_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["start_prod"]]
+            if start_prod_indices_to_delete != []:
+                block_copy.annotations.delete(start_prod_indices_to_delete)
 
-        end_prod_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "end_prod" in ann['description'] ]
-        end_prod_indices_to_delete = [end_prod_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["start_prod"]]
-        if end_prod_indices_to_delete != []:
-            block_copy.annotations.delete(end_prod_indices_to_delete)
+            end_prod_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "end_prod" in ann['description'] ]
+            end_prod_indices_to_delete = [end_prod_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["start_prod"]]
+            if end_prod_indices_to_delete != []:
+                block_copy.annotations.delete(end_prod_indices_to_delete)
 
-        go_signal_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "go_signal" in ann['description'] ]
-        go_signal_indices_to_delete = [go_signal_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["go_signal"]]
-        if go_signal_indices_to_delete != []:
-            block_copy.annotations.delete(go_signal_indices_to_delete)
+            go_signal_indices = [idx for idx, ann in enumerate(block_copy.annotations) if "go_signal" in ann['description'] ]
+            go_signal_indices_to_delete = [go_signal_indices[i] for i in config.bad_go_signal_start_prod_events[subject][block_number]["go_signal"]]
+            if go_signal_indices_to_delete != []:
+                block_copy.annotations.delete(go_signal_indices_to_delete)
 
     # Retrieve events and events dict for start_prod and go_signal
     start_prod_events_dict = {k:v for k,v in config.evts_id.items() if "start_prod" in k}

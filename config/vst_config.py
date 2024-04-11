@@ -7,7 +7,8 @@ figures = True
 plot = True
 generate_report = True
 montage_path = 'VST_Data/eeg data/MontageAntneuro2.bvef'
-
+stat_dir = r"C:\Users\gautier\Données EEG - Supervised Project\Stats"
+decoding_dir = r"C:\Users\gautier\Données EEG - Supervised Project\Decoding"
 
 subjects_list = ['VST_02_X', 'VST_03_Y', 'VST_05_X', 'VST_07_X',
                 'VST_08_Y', 'VST_09_X', 'VST_10_Y', 'VST_11_X',
@@ -15,6 +16,16 @@ subjects_list = ['VST_02_X', 'VST_03_Y', 'VST_05_X', 'VST_07_X',
                 'VST_16_Y', 'VST_17_X', 'VST_18_Y', 'VST_19_X',
                 'VST_20_Y', 'VST_21_X', 'VST_22_Y', 'VST_23_X',
                 'VST_24_Y']
+
+preprocessed_subjects_list = ['VST_02_X', 'VST_03_Y', 'VST_05_X', 'VST_07_X',
+                'VST_08_Y', 'VST_09_X', 'VST_10_Y', 'VST_11_X',
+                'VST_12_Y', 'VST_13_X', 'VST_14_Y', 'VST_15_X',
+                'VST_16_Y', 'VST_17_X', 'VST_18_Y', 'VST_19_X',
+                'VST_20_Y', 'VST_21_X', 'VST_22_Y', 'VST_23_X',
+                'VST_24_Y']
+
+conditions = ['SNS', 'SNL', 'SHS', 'SHL', 'LNS', 'LNL', 'LHS', 'LHL']
+condition_pairs = [('SNS', 'SNL'), ('SHS', 'SHL'), ('LNS', 'LNL'), ('LHS', 'LHL'), ('SNS', 'SHS'), ('SNL', 'SHL'), ('LNS', 'LHS'), ('LNL', 'LHL'), ('SNS', 'LNS'), ('SNL', 'LNL'), ('SHS', 'LHS'), ('SHL', 'LHL')]
 
 raw_data_paths = { 
               'VST_02_X': './VST_Data/eeg data\VST_02_X\VST_VST_02_X_prod_task.vhdr',
@@ -162,18 +173,18 @@ bad_channels_per_sub = {
     'VST_02_X': [],
     'VST_03_Y': [],
     'VST_05_X': [],
-    'VST_07_X': ['Pz', 'CP2'],
-    'VST_08_Y': ['Pz'],
-    'VST_09_X': ['Cz'],
-    'VST_10_Y': ['Pz', 'P1', 'M1'],
-    'VST_11_X': [],
-    'VST_12_Y': ['CP2'],
-    'VST_13_X': ['Pz'],
-    'VST_14_Y': [],
-    'VST_15_X': ['Cz'],
-    'VST_16_Y': ['T7', 'C3', 'CP1'],
-    'VST_17_X': ['CP2'],
-    'VST_18_Y': ['Pz'],
+    'VST_07_X': ['TP7', 'F5', 'AF3', 'FC3'],
+    'VST_08_Y': [],
+    'VST_09_X': ['AF7'],
+    'VST_10_Y': ['M1'],
+    'VST_11_X': ['F8', 'F6'],
+    'VST_12_Y': [],
+    'VST_13_X': ['M1', 'T7'],
+    'VST_14_Y': ['FT7', 'AF3', 'AF7'],
+    'VST_15_X': ['FC4', 'AF3', 'AF7'],
+    'VST_16_Y': ['T7', 'C3'],
+    'VST_17_X': ['CP2', 'AF7', 'T7'],
+    'VST_18_Y': ['Pz', 'T8'],
     'VST_19_X': [],
     'VST_20_Y': [],
     'VST_21_X': [],
@@ -198,25 +209,24 @@ bad_channels_per_sub = {
 ica_exclude = {
     'VST_02_X': [1, 17],
     'VST_03_Y': [3],
-    'VST_04_Y': [],
-    'VST_05_X': [],
-    'VST_07_X': [],
-    'VST_08_Y': [],
-    'VST_09_X': [],
-    'VST_10_Y': [],
-    'VST_11_X': [],
-    'VST_12_Y': [],
-    'VST_13_X': [],
-    'VST_14_Y': [],
-    'VST_15_X': [],
-    'VST_16_Y': [],
-    'VST_17_X': [],
-    'VST_18_Y': [],
-    'VST_19_X': [],
-    'VST_20_Y': [],
-    'VST_21_X': [],
-    'VST_22_Y': [],
-    'VST_23_X': [],
+    'VST_05_X': [2],
+    'VST_07_X': [0],
+    'VST_08_Y': [0],
+    'VST_09_X': [9, 0],
+    'VST_10_Y': [0],
+    'VST_11_X': [7],
+    'VST_12_Y': [3,5],
+    'VST_13_X': [0],
+    'VST_14_Y': [16,5,10],
+    'VST_15_X': [4,5],
+    'VST_16_Y': [5],
+    'VST_17_X': [1,3],
+    'VST_18_Y': [0],
+    'VST_19_X': [2,9],
+    'VST_20_Y': [4,6],
+    'VST_21_X': [9,10,2,1],
+    'VST_22_Y': [7,10],
+    'VST_23_X': [10,13],
     'VST_24_Y': [],
         }
 
@@ -228,7 +238,7 @@ bad_time_production_blocks = {
     'VST_07_X': [],
     'VST_08_Y': [2,3],
     'VST_09_X': [],
-    'VST_10_Y': [],
+    'VST_10_Y': [7],
     'VST_11_X': [],
     'VST_12_Y': [],
     'VST_13_X': [],
@@ -239,7 +249,7 @@ bad_time_production_blocks = {
     'VST_18_Y': [],
     'VST_19_X': [],
     'VST_20_Y': [],
-    'VST_21_X': [],
+    'VST_21_X': [0],
     'VST_22_Y': [],
     'VST_23_X': [],
     'VST_24_Y': [],
@@ -247,9 +257,25 @@ bad_time_production_blocks = {
 
 
 # Bad start prod and go signal events, ie events that break the go_signal - start_prod chain (two consecutive start prod for instance)
+# Add all the subjects to the dictionary
+
 bad_go_signal_start_prod_events = {
                                     'VST_02_X':{
                                         3:{
+                                            'start_prod':[0],
+                                            'end_prod':[0],
+                                            'go_signal':[]
+                                            }
+                                        },
+                                    'VST_16_Y':{
+                                        3:{
+                                            'start_prod':[0],
+                                            'end_prod':[0],
+                                            'go_signal':[]
+                                            }
+                                        },
+                                    'VST_21_X':{
+                                        1:{
                                             'start_prod':[0],
                                             'end_prod':[0],
                                             'go_signal':[]
