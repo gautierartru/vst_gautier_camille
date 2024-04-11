@@ -38,7 +38,7 @@ import eeg_decoding as decoding
 
 #%% __________ [1] Define directories
 decoding_dir    = f'{config.stat_dir}/auc_time_courses/'
-decoding_report_dir  = f'{config.stat_dir}/reports_auc_time_courses/'
+decoding_report_dir  = f'../reports_auc_time_courses/'
 
 subjects_list    = config.preprocessed_subjects_list                # list of participants (sid)
 n_subjects       = len(subjects_list)  

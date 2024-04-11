@@ -38,7 +38,7 @@ pred_vars   = ['Duration_Produced_beta']
 
 #%% __________ [1] Define directories
 stat_dir    = f'{config.stat_dir}/regressions/'
-report_dir  = f'{config.stat_dir}/reports/'
+report_dir  = f'../reports/'
 
 subjects_list    = config.preprocessed_subjects_list                # list of participants (sid)
 n_subjects       = len(subjects_list)  
