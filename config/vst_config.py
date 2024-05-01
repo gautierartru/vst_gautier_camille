@@ -24,9 +24,6 @@ preprocessed_subjects_list = ['VST_02_X', 'VST_03_Y', 'VST_05_X', 'VST_07_X',
                 'VST_20_Y', 'VST_21_X', 'VST_22_Y', 'VST_23_X',
                 'VST_24_Y']
 
-conditions = ['SNS', 'SNL', 'SHS', 'SHL', 'LNS', 'LNL', 'LHS', 'LHL']
-condition_pairs = [('SNS', 'SNL'), ('SHS', 'SHL'), ('LNS', 'LNL'), ('LHS', 'LHL'), ('SNS', 'SHS'), ('SNL', 'SHL'), ('LNS', 'LHS'), ('LNL', 'LHL'), ('SNS', 'LNS'), ('SNL', 'LNL'), ('SHS', 'LHS'), ('SHL', 'LHL')]
-
 raw_data_paths = { 
               'VST_02_X': './VST_Data/eeg data\VST_02_X\VST_VST_02_X_prod_task.vhdr',
               'VST_03_Y': './VST_Data/eeg data\VST_03_Y\VST_VST_03_Y_2023-06-26_10-49-33.vhdr',
@@ -64,6 +61,9 @@ raw_data_paths = {
 # LHS = large high short
 # LHL = large high long
 # press = rythm
+
+conditions = ['SNS', 'SNL', 'SHS', 'SHL', 'LNS', 'LNL', 'LHS', 'LHL']
+condition_pairs = [('SNS', 'SNL'), ('SHS', 'SHL'), ('LNS', 'LNL'), ('LHS', 'LHL'), ('SNS', 'SHS'), ('SNL', 'SHL'), ('LNS', 'LHS'), ('LNL', 'LHL'), ('SNS', 'LNS'), ('SNL', 'LNL'), ('SHS', 'LHS'), ('SHL', 'LHL')]
 
 mapped_annotations = {
     'Stimulus/s11': 'start_trial_SNS',
@@ -283,12 +283,20 @@ bad_go_signal_start_prod_events = {
                                         },
                                     }
 
+reject_dict = dict(eeg=150e-6)
+
 ####
 # Selected channels
 ####
 
 # From Robinson & Wiener 2020 paper
 frontocentral_channels = ['Fz', 'FC1', 'Cz', 'FC2', 'F1', 'C1', 'C2', 'F2', 'FCz']
+
+# All Channels names
+all_channels_names = ['Fp1', 'Fpz', 'Fp2', 'F7', 'F3', 'Fz', 'F4', 'F8', 'FC5', 'FC1', 'FC2', 'FC6', 'M1', 'T7', 'C3', 'Cz', 'C4', 'T8', 'M2', 'CP5', 'CP1', 'CP2', 'CP6', 'P7', 'P3', 'Pz', 'P4', 'P8', 'POz', 'O1', 'O2', 'EOG', 'AF7', 'AF3', 'AF4', 'AF8', 'F5', 'F1', 'F2', 'F6', 'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6', 'CP3', 'CP4', 'P5', 'P1', 'P2', 'P6', 'PO5', 'PO3', 'PO4', 'PO6', 'FT7', 'FT8', 'TP7', 'TP8', 'PO7', 'PO8', 'Oz']
+
+# Channels from cluster analysis
+channels_from_cluster_analysis = ['Fpz', 'F3', 'Fz', 'F4', 'FC5', 'FC1', 'FC2', 'FC6', 'C4', 'CP5', 'CP1', 'CP6', 'P3', 'AF4', 'F1', 'F2', 'FCz', 'C5', 'C1', 'C2', 'C6', 'CP3', 'P1', 'P2']
 
 # TO BE REMOVED
 

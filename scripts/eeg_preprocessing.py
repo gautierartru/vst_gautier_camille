@@ -306,7 +306,7 @@ def get_start_prod_epochs(block, block_number, subject, picks, baseline_duration
         start_prod_epochs_dict[condition].append(start_prod_epoch)
 
     for condition, epochs in start_prod_epochs_dict.items():
-        start_prod_epochs_dict[condition] = mne.concatenate_epochs(epochs, on_mismatch='ignore', verbose=False)
+        start_prod_epochs_dict[condition] = mne.concatenate_epochs(epochs, on_mismatch='ignore', verbose=False).drop_bad(reject=config.reject_dict)
     
     return start_prod_epochs_dict
 
@@ -378,7 +378,7 @@ def get_go_signal_epochs(block, block_number, subject, picks, baseline_duration=
         go_signal_epochs_dict[condition].append(go_signal_epoch)
 
     for condition, epochs in go_signal_epochs_dict.items():
-        go_signal_epochs_dict[condition] = mne.concatenate_epochs(epochs, on_mismatch='ignore', verbose=False)
+        go_signal_epochs_dict[condition] = mne.concatenate_epochs(epochs, on_mismatch='ignore', verbose=False).drop_bad(reject=config.reject_dict)
     
     return go_signal_epochs_dict, surpass_events
 
@@ -405,6 +405,7 @@ def save_epochs(epochs, subject, block_number, epochs_type, condition, baseline_
 
 # Returns epochs array corresponding to given subject, condition and epochs_type
 def load_subject_epochs_by_type_and_condition(subject, condition, epochs_type, baseline_duration, epoch_duration, pick_type, verbose):
+    
     subject_epochs = []
 
     epochs_folder = f"{config.work_dir}/saved_epochs/{pick_type}_{epochs_type}_{baseline_duration}_{epoch_duration}/{condition}/subject_{subject}"
@@ -432,4 +433,23 @@ def load_all_epochs_by_type_and_condition(condition, epochs_type, baseline_durat
                 all_epochs.append(epochs)
 
     epochs = mne.concatenate_epochs(all_epochs, verbose=False)
+    return epochs
+
+# Returns list of epochs array corresponding to given subject, condition and epochs_type
+def load_subject_epochs_by_type_and_condition_in_blocks(subject, condition, epochs_type, baseline_duration, epoch_duration, pick_type, verbose):
+    
+    subject_epochs = []
+
+    epochs_folder = f"{config.work_dir}/saved_epochs/{pick_type}_{epochs_type}_{baseline_duration}_{epoch_duration}/{condition}/subject_{subject}"
+
+    for epoch_file_name in os.listdir(epochs_folder):
+        epoch_file_path = os.path.join(epochs_folder, epoch_file_name)
+        epochs = mne.read_epochs(epoch_file_path, verbose=verbose)
+        subject_epochs.append(epochs)
+
+    return subject_epochs
+
+def change_bad_channels(epochs, verbose = False):
+    bad_channels = [item for key, sublist in config.bad_channels_per_sub.items() for item in sublist]
+    epochs.info['bads'] = bad_channels
     return epochs

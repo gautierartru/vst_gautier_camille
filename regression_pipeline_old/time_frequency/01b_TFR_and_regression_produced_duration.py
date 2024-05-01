@@ -66,7 +66,7 @@ n_std = 1
 
 #%%============================================================================
 
-# Takes the epochs as input and returns the power time course within given frequencies as an array  number of epochs x number of channels x times
+# Takes the epochs as input and returns the power time course within given frequencies as an epochs array number of epochs x number of channels x times
 def get_power_epochs(epochs, power_freq_low_bound, power_freq_high_bound):
     frequencies = np.arange(power_freq_low_bound, power_freq_high_bound)  
     cycles_per_freq = 6
